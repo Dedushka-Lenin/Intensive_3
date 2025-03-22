@@ -2,6 +2,8 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
 
+from ControlModel import ControlModel
+
 ##########################################################################################
 
 class MainMenu(QWidget):
@@ -48,7 +50,10 @@ class MainMenu(QWidget):
 ##########################################################################################
 
     def button_launch_clicked(self):
-        s = QPixmap('app\graphics\goida.png')
+        cm = ControlModel
+        cm.predictions(cm, self.now.value()+1)
+
+        s = QPixmap('app\graphics\graphic_week.png')
         s = s.scaled(1000, 1000, Qt.AspectRatioMode.KeepAspectRatio)
 
         self.schedule.setPixmap(s)
