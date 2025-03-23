@@ -1,9 +1,8 @@
-from catboost import CatBoostRegressor
+from joblib import load
 
 def catBoost(X_train, y_train, X_test):
 
-    model = CatBoostRegressor(iterations=500, learning_rate=0.2, depth=4, verbose=0)
-    model.fit(X_train, y_train)
+    model = load('app\model\catBoostModel.joblib')  # Загружаем модель, она готова к использованию.
 
     y_pred = model.predict(X_test)
 
