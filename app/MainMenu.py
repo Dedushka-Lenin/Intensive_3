@@ -1,3 +1,5 @@
+import pandas as pd
+
 from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
@@ -10,15 +12,18 @@ class MainMenu(QWidget):
     def __init__(self):
         super().__init__()
 
-        s = QPixmap('app/graphics/empty_chart.png')
-        s = s.scaled(1000, 1000, Qt.AspectRatioMode.KeepAspectRatio)
+        s = QImage('app/graphics/empty_chart.png')
 
 
         self.schedule = QLabel()                                            # График
-        self.schedule.setPixmap(s)
+        self.schedule.setPixmap(QPixmap.fromImage(s))
 
 
 ##########################################################################################
+
+        self.cd = QDateEdit()                                               # Дата
+        self.cd.setDate(QDate(2022, 9, 5))
+        self.cd.setDisplayFormat("d.MM.yyyy")
 
         self.now = QSpinBox()                                               # Количество недель
         self.now.setRange(1,10)
@@ -26,18 +31,39 @@ class MainMenu(QWidget):
         self.button_launch = QPushButton("ЗАПУСК", self)                    #Кнопка ЗАПУСК
         self.button_launch.clicked.connect(self.button_launch_clicked)
 
+        self.button_launch.setStyleSheet("""
+            QPushButton {
+                border: 2px solid #000000;    /* Цвет обводки */
+                border-radius: 5px;           /* Закругление углов */
+                background-color: white;      /* Цвет фона */
+                color: #000000;               /* Цвет текста */
+            }
+            QPushButton:hover {
+                background-color: #808080;    /* Цвет фона при наведении */
+                color: white;                 /* Цвет текста при наведении */
+            }
+            QPushButton:pressed {
+                background-color: #000000;    /* Цвет фона при нажатии */
+            }
+        """)
+
+        self.sign = QLabel(self)
+        self.sign.setWordWrap(True)
+        self.sign.setMaximumWidth(180)
+
 ##########################################################################################
 
         column_1 = QVBoxLayout()
-        column_1.addWidget(QLabel("", self))
         column_1.addWidget(self.schedule, 0)
         column_1.addStretch()
 
         column_2 = QVBoxLayout()
-        column_2.addWidget(QLabel("", self))
+        column_2.addStretch()
+        column_2.addWidget(self.cd)
         column_2.addWidget(self.now)
         column_2.addWidget(self.button_launch, 0)
         column_2.addStretch()
+        column_2.addWidget(self.sign, 0)
 
         line_main = QHBoxLayout()
         line_main.addLayout(column_1)
@@ -50,10 +76,23 @@ class MainMenu(QWidget):
 ##########################################################################################
 
     def button_launch_clicked(self):
-        cm = ControlModel
-        cm.predictions(cm, self.now.value()+1)
 
-        s = QPixmap('app\graphics\graphic_week.png')
-        s = s.scaled(1000, 1000, Qt.AspectRatioMode.KeepAspectRatio)
+        date = self.cd.text().split('.')
+        date = pd.to_datetime(f'{date[2]}.{date[1]}.{date[0]}')
 
-        self.schedule.setPixmap(s)
+        if pd.to_datetime('2023-01-02 00:00:00') < date:
+            self.sign.setText('Установленная вами дата больше верхнего порога')
+
+        elif pd.to_datetime('2022-09-05 00:00:00') > date:
+            self.sign.setText('Установленная вами дата меньше нижнего порога')
+
+        else:
+            self.sign.setText('')
+
+            cm = ControlModel
+            cm.predictions(cm, self.now.value()+1, date)
+
+            s = QPixmap('app\graphics\graphic_week.png')
+            s = s.scaled(1000, 1000, Qt.AspectRatioMode.KeepAspectRatio)
+
+            self.schedule.setPixmap(s)

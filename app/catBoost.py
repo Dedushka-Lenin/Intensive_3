@@ -1,6 +1,6 @@
 from joblib import load
 
-def catBoost(X_train, y_train, X_test):
+def catBoost(X_test):
 
     model = load('app\model\catBoostModel.joblib')  # Загружаем модель, она готова к использованию.
 

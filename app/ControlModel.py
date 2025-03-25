@@ -6,7 +6,7 @@ from catBoost import catBoost
 
 class ControlModel:
 
-    def predictions(self, now):
+    def predictions(self, now, date):
 
         data = pd.read_csv('app/date/full.csv')
 
@@ -20,31 +20,48 @@ class ControlModel:
         t = list(data.columns)
         t.remove('pfr')
 
+        test_start = date
+        test_stop = date + pd.Timedelta(days=now*7)
 
-        train = data.head(-11)
-        test = data.tail(11)
-        test = test.head(now)
-
-        X_train = train[t]
-        y_train = train['pfr']
+        test = data[(data.index >= test_start) & (data.index < test_stop)]
 
         X_test = test[t]
         y_test = test['pfr']
         
-        y_pred = catBoost(X_train, y_train, X_test)
+        y_pred = catBoost(X_test)
 
-        self.plotting(y_test, y_pred)
+        self.plotting(y_test, y_pred, now)
 
 ###############################################################################################
 
-    def plotting(y_test, y_pred):
+    def plotting(y_test, y_pred, now):
 
-        plt.figure(figsize=(12, 6))
-        plt.plot(y_test.index, y_test, label='Actual', color='blue')
+        plt.figure(figsize=(12, 6), dpi=200)
         plt.plot(y_test.index, y_pred, label='Predicted', color='red')
-        plt.legend()
+        plt.plot(y_test.index, y_test, label='Actual', color='blue')
+        plt.xticks(y_test.index, rotation=45)
+        plt.legend(fontsize=12)
         plt.title('Actual vs Predicted')
         plt.xlabel('Дата')
         plt.ylabel('Цена')
+
+        for i, (date, price) in enumerate(zip(y_test.index[1:], y_pred[1:]), start=1):
+
+            text_y = price + 2**now  # Поднимаем текст на 5 единиц
+
+            # Проверяем, не выходит ли текст за пределы графика
+            if text_y > plt.ylim()[1] - 2**(now-1):  # Если текст выходит за верхнюю границу
+                text_y = price - 2**now  # Смещаем текст вниз
+            
+            plt.annotate(f'Неделя №{i}',
+                         xy=(date, price),  # Координаты точки
+                         xytext=(date, text_y),  # Положение текста
+                         arrowprops=dict(arrowstyle='-', color='black'),  # Стиль стрелки
+                         fontsize=9, 
+                         ha='center', 
+                         va='bottom', 
+                         color='black')  # Цвет текста
+            
+        plt.tight_layout()
 
         plt.savefig('app/graphics/graphic_week.png')
