@@ -90,9 +90,29 @@ class MainMenu(QWidget):
             self.sign.setText('')
 
             cm = ControlModel
-            cm.predictions(cm, self.now.value()+1, date)
+            pred, dt = cm.predictions(cm, self.now.value()+1, date)
 
             s = QPixmap('app\graphics\graphic_week.png')
             s = s.scaled(1000, 1000, Qt.AspectRatioMode.KeepAspectRatio)
 
             self.schedule.setPixmap(s)
+
+            asist = []
+            
+            for i in range(0, len(pred)-2):
+                if pred[i] < pred[i+1]:
+                    asist.append(dt[i])
+
+            
+            if len(asist) != 0:
+                
+                advice = 'Рекомедованные даты для закупок:'
+
+                for elm in asist:
+                    s = str(elm).split(' ')[0]
+                    t = s.split('-')
+
+                    advice += f'\n    {s}({t[2]}.{t[1]}.{t[0]})'
+
+                self.sign.setText(advice)
+        

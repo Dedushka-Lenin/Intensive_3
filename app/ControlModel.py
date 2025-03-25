@@ -3,6 +3,8 @@ import pandas as pd
 
 from catBoost import catBoost
 
+from statsmodels.tsa.seasonal import seasonal_decompose
+
 
 class ControlModel:
 
@@ -13,7 +15,14 @@ class ControlModel:
         data.dt = pd.to_datetime(data.dt) # Приводим дату в тип pandas
         data = data.set_index('dt') # Делаем колонку даты индексом, даем ей периодичность месяц ('MS' - month start)
 
-        lag_days = 0  # Количество лагов
+        decomposition = seasonal_decompose(data['pfr'], model='additive')
+
+        data['trend'] = decomposition.trend
+        data['seasonal'] = decomposition.seasonal
+        data['residual'] = decomposition.resid
+
+
+        lag_days = 50  # Количество лагов
         for lag in range(1, lag_days + 1):
             data[f'lag_{lag}'] = data['pfr'].shift(lag)
 
@@ -31,6 +40,8 @@ class ControlModel:
         y_pred = catBoost(X_test)
 
         self.plotting(y_test, y_pred, now)
+
+        return y_pred, test.index
 
 ###############################################################################################
 
