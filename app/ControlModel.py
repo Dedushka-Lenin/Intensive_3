@@ -13,6 +13,12 @@ class ControlModel:
         data = pd.read_csv('app/date/full.csv')
 
         data.dt = pd.to_datetime(data.dt) # Приводим дату в тип pandas
+
+        # Создание новых столбцов для года, месяца и дня
+        data['year'] = data['dt'].dt.year
+        data['month'] = data['dt'].dt.month
+        data['day'] = data['dt'].dt.day
+
         data = data.set_index('dt') # Делаем колонку даты индексом, даем ей периодичность месяц ('MS' - month start)
 
         decomposition = seasonal_decompose(data['pfr'], model='additive')
@@ -21,8 +27,7 @@ class ControlModel:
         data['seasonal'] = decomposition.seasonal
         data['residual'] = decomposition.resid
 
-
-        lag_days = 50  # Количество лагов
+        lag_days = 61  # Количество лагов
         for lag in range(1, lag_days + 1):
             data[f'lag_{lag}'] = data['pfr'].shift(lag)
 

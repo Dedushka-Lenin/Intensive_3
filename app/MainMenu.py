@@ -22,7 +22,7 @@ class MainMenu(QWidget):
 ##########################################################################################
 
         self.cd = QDateEdit()                                               # Дата
-        self.cd.setDate(QDate(2022, 9, 5))
+        self.cd.setDate(QDate(2022, 10, 3))
         self.cd.setDisplayFormat("d.MM.yyyy")
 
         self.now = QSpinBox()                                               # Количество недель
@@ -81,10 +81,10 @@ class MainMenu(QWidget):
         date = pd.to_datetime(f'{date[2]}.{date[1]}.{date[0]}')
 
         if pd.to_datetime('2023-01-02 00:00:00') < date:
-            self.sign.setText('Установленная вами дата больше верхнего порога')
+            self.sign.setText('Установленная вами дата больше верхнего порога \n верхний порог - 2.01.2023')
 
-        elif pd.to_datetime('2022-09-05 00:00:00') > date:
-            self.sign.setText('Установленная вами дата меньше нижнего порога')
+        elif pd.to_datetime('2022-10-03 00:00:00') > date:
+            self.sign.setText('Установленная вами дата меньше нижнего порога \n нижний порог - 3.10.2022')
 
         else:
             self.sign.setText('')
