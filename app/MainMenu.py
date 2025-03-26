@@ -22,7 +22,7 @@ class MainMenu(QWidget):
 ##########################################################################################
 
         self.cd = QDateEdit()                                               # Дата
-        self.cd.setDate(QDate(2022, 10, 3))
+        self.cd.setDate(QDate(2023, 1, 2))
         self.cd.setDisplayFormat("d.MM.yyyy")
 
         self.now = QSpinBox()                                               # Количество недель
@@ -97,22 +97,32 @@ class MainMenu(QWidget):
 
             self.schedule.setPixmap(s)
 
-            asist = []
-            
-            for i in range(0, len(pred)-2):
-                if pred[i] < pred[i+1]:
-                    asist.append(dt[i])
+            advice = 'Рекомедованные даты для закупок:'
 
-            
-            if len(asist) != 0:
-                
-                advice = 'Рекомедованные даты для закупок:'
+            for i in range(len(pred)):
 
-                for elm in asist:
-                    s = str(elm).split(' ')[0]
-                    t = s.split('-')
+                c = 0
 
-                    advice += f'\n    {s}({t[2]}.{t[1]}.{t[0]})'
+                for j in range(i+1,len(pred)):
 
-                self.sign.setText(advice)
-        
+                    if pred[i] > pred[j]:
+                        c = j - i
+                        break
+                        
+                    c = len(pred) - i
+
+                if c != 0:
+                    t = str(dt[i]).split(' ')[0]
+                    t = t.split('-')
+
+                    advice += f'\n    {t[2]}.{t[1]}.{t[0]}({i}) - на {c} {self.declination(c)}'
+
+            self.sign.setText(advice)
+
+    def declination(self, week):
+        if week == 1:
+            return 'неделю'
+        elif week in [2, 3, 4]:
+            return 'недели'
+        else:
+            return 'недель'
