@@ -1,7 +1,7 @@
 # Intensive_3
 
-python - 3.11.9
+prediction\linear_regression.ipynb - linear regression
+prediction\catboost.ipynb - catboost
+prediction\arima.ipynb - arima
 
-pip freeze > requirements.txt --- записать библиотеки в список
-
-pip install -r requirements.txt --- скачать всё что нужно
+app\app.py - файл запуска приложения
